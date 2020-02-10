@@ -8,5 +8,5 @@ data class VenueRecommendationsResponse(
     val suggestedBounds: SuggestedBounds,
     val suggestedRadius: Int,
     val totalResults: Int,
-    val warning: Warning
+    val warning: Warning?
 )

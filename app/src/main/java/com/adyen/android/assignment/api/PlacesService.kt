@@ -17,7 +17,7 @@ interface PlacesService {
      * See [the docs](https://developer.foursquare.com/docs/api/venues/explore)
      */
     @GET("venues/explore")
-    fun getVenueRecommendations(@QueryMap query: Map<String, String>): Call<ResponseWrapper<VenueRecommendationsResponse>>
+    suspend fun getVenueRecommendations(@QueryMap query: Map<String, String>): ResponseWrapper<VenueRecommendationsResponse>
 
     companion object  {
         private val retrofit by lazy {

@@ -11,3 +11,13 @@ Tip: You can verify your credentials with `src/test/java/com/adyen/android/assig
 Ideas:
 - Show a list of venues around the user's current location.
 - Implement filter / search functionality.
+
+## Notes of my assignment
+
+Since I did not want to spend too much time on the assignment there were a few things which I didn't implement.
+
+1. Loader when you search for recommendations for a particular location.
+2. Pagination.
+3. Different entities for what is being shown on the view; I now implemented Parcelize and Parcelable.
+on the classes that are used to do mapping of the API and since those are used for a different purpose they should not be used for both.
+4. Use the SavedStateViewModelFactory so that the fragment doesn't have to bother with the saved instance state.

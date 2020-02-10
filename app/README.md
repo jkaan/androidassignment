@@ -21,3 +21,7 @@ Since I did not want to spend too much time on the assignment there were a few t
 3. Different entities for what is being shown on the view; I now implemented Parcelize and Parcelable.
 on the classes that are used to do mapping of the API and since those are used for a different purpose they should not be used for both.
 4. Use the SavedStateViewModelFactory so that the fragment doesn't have to bother with the saved instance state.
+5. More tests for the repository and also for the query builder.
+6. UI tests
+
+Keeping this all into account though I think this gives a very good image of how I develop code on a daily basis :).

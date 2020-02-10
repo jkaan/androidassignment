@@ -3,6 +3,7 @@ package com.adyen.android.assignment.ui
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.adyen.android.assignment.CoroutinesTestRule
 import com.adyen.android.assignment.api.PlacesRepository
+import com.adyen.android.assignment.api.PlacesRepositoryImpl
 import com.adyen.android.assignment.api.model.*
 import io.mockk.coEvery
 import io.mockk.every
@@ -21,7 +22,7 @@ class MainViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun `search - returns venue recommendations`() {
+    fun `search - successful - returns venue recommendations`() {
         val recommendedItem = RecommendedItem(
             reasons = Reasons(
                 count = 0, items = listOf(
@@ -108,10 +109,28 @@ class MainViewModelTest {
         viewModel.handleIntent(Search("Amsterdam"))
 
         assert(
-            viewModel.viewState.value == MainViewState(
+            viewModel.viewState.value == MainViewState.Content(
                 header = "Amsterdam",
                 totalResults = 230,
                 recommendedItems = listOf(recommendedItem)
+            )
+        )
+    }
+
+    @Test
+    fun `search - throws exception - returns venue recommendations`() {
+        val repo: PlacesRepository = mockk {
+            coEvery { getVenueRecommendations("Amsterdam") } throws PlacesRepositoryImpl.DataRetrievalException(
+                "Timeout"
+            )
+        }
+        val viewModel = MainViewModel(repo)
+
+        viewModel.handleIntent(Search("Amsterdam"))
+
+        assert(
+            viewModel.viewState.value == MainViewState.Error(
+                "Something went wrong, try again with a different search"
             )
         )
     }

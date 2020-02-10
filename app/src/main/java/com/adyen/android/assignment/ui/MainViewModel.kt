@@ -22,13 +22,19 @@ class MainViewModel(
         when (intent) {
             is Search -> {
                 viewModelScope.launch {
-                    val venueRecommendations = repository.getVenueRecommendations(intent.text)
-                    _viewState.value = MainViewState(
-                        header = venueRecommendations.headerFullLocation,
-                        totalResults = venueRecommendations.totalResults,
-                        recommendedItems = venueRecommendations.groups.getOrNull(0)?.items
-                            ?: emptyList()
-                    )
+                    try {
+                        val venueRecommendations = repository.getVenueRecommendations(intent.text)
+                        _viewState.value = MainViewState.Content(
+                            header = venueRecommendations.headerFullLocation,
+                            totalResults = venueRecommendations.totalResults,
+                            recommendedItems = venueRecommendations.groups.getOrNull(0)?.items
+                                ?: emptyList()
+                        )
+                    } catch (exception: Throwable) {
+                        _viewState.value = MainViewState.Error(
+                            errorMessage = "Something went wrong, try again with a different search"
+                        )
+                    }
                 }
             }
         }

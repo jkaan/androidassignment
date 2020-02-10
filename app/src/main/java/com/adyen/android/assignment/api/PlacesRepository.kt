@@ -18,6 +18,12 @@ class PlacesRepositoryImpl(
             .setNear(near)
             .build()
 
-        return withContext(dispatcher) { service.getVenueRecommendations(queryBuilder).response }
+        return try {
+            withContext(dispatcher) { service.getVenueRecommendations(queryBuilder).response }
+        } catch (exception: Throwable) {
+            throw DataRetrievalException(exception.message)
+        }
     }
+
+    class DataRetrievalException(message: String?) : Throwable()
 }

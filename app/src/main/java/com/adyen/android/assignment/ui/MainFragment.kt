@@ -62,9 +62,16 @@ class MainFragment : Fragment() {
 
     private fun render(viewState: MainViewState) {
         currentViewState = viewState
-        view_header.text = viewState.header
-        view_results_amount.text = getString(R.string.results_text, viewState.totalResults)
-        adapter.submitList(viewState.recommendedItems)
+        when (viewState) {
+            is MainViewState.Content -> {
+                view_header.text = viewState.header
+                view_results_amount.text = getString(R.string.results_text, viewState.totalResults)
+                adapter.submitList(viewState.recommendedItems)
+            }
+            is MainViewState.Error -> {
+                view_header.text = viewState.errorMessage
+            }
+        }
     }
 
     companion object {

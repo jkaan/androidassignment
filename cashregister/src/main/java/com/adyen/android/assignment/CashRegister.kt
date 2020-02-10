@@ -1,7 +1,5 @@
 package com.adyen.android.assignment
 
-import kotlin.system.exitProcess
-
 /**
  * The CashRegister class holds the logic for performing transactions.
  *
@@ -21,23 +19,34 @@ class CashRegister(private val change: Change) {
     fun performTransaction(price: Long, amountPaid: Long): Change {
         if (price == amountPaid) return Change.none()
         if (price > amountPaid) throw TransactionException("Can't pay with less than what the price is")
-
         var remainder = amountPaid - price
-        val change = Change()
+        if (remainder > change.total) throw TransactionException("Not enough cash in register")
 
-        val monetaryElements: List<MonetaryElement> = listOf(*Bill.values()) + listOf(*Coin.values())
+        // Figure out the minimal amount of change to return
+        val monetaryElements: List<MonetaryElement> =
+            listOf(*Bill.values()) + listOf(*Coin.values())
 
-        while (remainder > 0) {
+        val calculatedChange = Change()
+        while (change.total > 0) {
             monetaryElements.forEach {
                 val amountOfMonetaryElement = (remainder / it.minorValue)
-                if (amountOfMonetaryElement > 0) {
+                // Check how much of those is left in the register,
+                // if not enough just return the amount which is in there.
+                if (change.getCount(it) >= amountOfMonetaryElement && amountOfMonetaryElement > 0) {
                     remainder -= (it.minorValue * amountOfMonetaryElement)
-                    change.add(it, amountOfMonetaryElement.toInt())
+                    calculatedChange.add(it, amountOfMonetaryElement.toInt())
+                } else if (change.getCount(it) < amountOfMonetaryElement) {
+                    remainder -= (it.minorValue * change.getCount(it))
+                    calculatedChange.add(it, change.getCount(it))
+                }
+
+                if (remainder == 0L) {
+                    return calculatedChange
                 }
             }
         }
 
-        return change
+        return calculatedChange
     }
 
     class TransactionException(message: String, cause: Throwable? = null) :

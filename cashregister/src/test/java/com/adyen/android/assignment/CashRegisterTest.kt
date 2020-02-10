@@ -6,17 +6,32 @@ import org.junit.Before
 import org.junit.Test
 
 class CashRegisterTest {
-    private lateinit var cashRegister: CashRegister
 
     @Test
     fun testTransactionWithSamePriceAsAmountPaidReturnsNone() {
-        assertEquals(Change.none(), cashRegister.performTransaction(10L, 10L))
+        assertEquals(Change.none(), CashRegister(Change.none()).performTransaction(10L, 10L))
     }
 
     @Test
     fun testTransactionWithPriceMoreThanWhatIsPaidThrowsException() {
         assertThrows(CashRegister.TransactionException::class.java) {
-            cashRegister.performTransaction(1L, 0L)
+            CashRegister(Change.none()).performTransaction(1L, 0L)
+        }
+    }
+
+    @Test
+    fun testTransactionWithNoChangeThrowsExceptionIfAmountPaidIsHigherThanPrice() {
+        assertThrows(CashRegister.TransactionException::class.java) {
+            CashRegister(Change.none()).performTransaction(1L, 2L)
+        }
+    }
+
+    @Test
+    fun testTransactionWithChangeLowerThanWhatIsNeededThrowsException() {
+        assertThrows(CashRegister.TransactionException::class.java) {
+            CashRegister(Change().apply {
+                add(Coin.ONE_CENT, 1)
+            }).performTransaction(1L, 3L)
         }
     }
 
@@ -24,14 +39,18 @@ class CashRegisterTest {
     fun testTransactionWithPriceFiveEurosLessThanAmountPaidReturnsChangeWithBillOfFive() {
         assertEquals(Change().apply {
             add(Bill.FIVE_EURO, 1)
-        }, cashRegister.performTransaction(1000L, 1500L))
+        }, CashRegister(Change().apply {
+            add(Bill.FIVE_EURO, 1)
+        }).performTransaction(1000L, 1500L))
     }
 
     @Test
     fun testTransactionWithPriceFiveCentsLessThanAmountPaidReturnsChangeWithCoinOfFive() {
         assertEquals(Change().apply {
             add(Coin.FIVE_CENT, 1)
-        }, cashRegister.performTransaction(10L, 15L))
+        }, CashRegister(Change().apply {
+            add(Coin.FIVE_CENT, 1)
+        }).performTransaction(10L, 15L))
     }
 
     @Test
@@ -39,18 +58,18 @@ class CashRegisterTest {
         assertEquals(Change().apply {
             add(Coin.FIVE_CENT, 1)
             add(Bill.FIVE_EURO, 1)
-        }, cashRegister.performTransaction(1000L, 1505L))
+        }, CashRegister(Change().apply {
+            add(Coin.FIVE_CENT, 1)
+            add(Bill.FIVE_EURO, 1)
+        }).performTransaction(1000L, 1505L))
     }
 
     @Test
     fun testTransactionWithPriceThousandEuroLessThanAmountPaidReturnsChangeWithTwoBillsOfFiveHundred() {
         assertEquals(Change().apply {
             add(Bill.FIVEHUNDRED_EURO, 2)
-        }, cashRegister.performTransaction(100000L, 200000L))
-    }
-
-    @Before
-    fun setUp() {
-        cashRegister = CashRegister(Change.none())
+        }, CashRegister(Change().apply {
+            add(Bill.FIVEHUNDRED_EURO, 2)
+        }).performTransaction(100000L, 200000L))
     }
 }
